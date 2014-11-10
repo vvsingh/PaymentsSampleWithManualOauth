@@ -22,8 +22,16 @@ object Application extends Controller {
   val accessTokenURL = "https://oauth.intuit.com/oauth/v1/get_access_token";
   val userAuthURL = "https://appcenter.intuit.com/Connect/Begin";
   val oauthCallback = "http://localhost:9000/requestToken";
+  
+  //Prod Keys
   val consumerKey = "qyprd65wBgNHyLYdB7CAzT13AeDMJb";
   val consumerSecret = "UpMk1eg0zf3VHhB8q7N0Ni0VSmpTrnfvmrJRGoir";
+  
+  //Dev Keys
+//   val consumerKey = "qyprdpVqUILJSMKPjqAVA6Rk5gUfxg";
+//  val consumerSecret = "iB1f62NdC2DunObkXSKpDmTuYWZ0J3xUHL8c575n";
+ 
+  
   var verifier = "";
   var oauth_token = ""
   var oauth_token_secret = ""
