@@ -32,8 +32,9 @@ object Application extends Controller {
   //  val consumerSecret = "iB1f62NdC2DunObkXSKpDmTuYWZ0J3xUHL8c575n";
 
   var verifier = "";
+  var request_token="";
+  var request_token_secret="";
   var oauth_token = ""
-  var oauth_token_secret = ""
   var oauth_nonce = ""
   var timestamp = ""
   var accessToken = ""
@@ -42,9 +43,9 @@ object Application extends Controller {
 
   def index = Action {
 
-    val requestToken = getRequestToken
+    request_token = getRequestToken
     println("About to call Redirect()")
-    Redirect(userAuthURL + "?oauth_token=" + requestToken); 
+    Redirect(userAuthURL + "?oauth_token=" + request_token); 
   }
 
   def getRequestToken: String =
@@ -70,7 +71,7 @@ object Application extends Controller {
       //BASE 64 Encode the signature because the result of HMAC-SHA is binary
       val signature = new sun.misc.BASE64Encoder().encode(signatureByte)
       //Append the signature to the end of the Request Token URL along with the query string
-      val futureResult: Future[play.api.libs.ws.Response] = WS.url(requestTokenURL + queryString + "&oauth_signature=" + signature).get;
+      val futureResult: Future[play.api.libs.ws.Response] = WS.url(requestTokenURL + queryString + "&oauth_signature=" + URLEncoder.encode(signature)).get;
 
       implicit val timeout = Timeout(15 seconds)
       val result = Await.result(futureResult, timeout.duration).asInstanceOf[play.api.libs.ws.Response];
@@ -79,7 +80,7 @@ object Application extends Controller {
       //Example Result : oauth_token_secret=O3wXrEL9wVSz4CbSkIoiVB94v6fm6kFUN6fKs5OI&oauth_callback_confirmed=true&oauth_token=qyprdqstWNGYcfUCxWm5xwttmk0wrt7jzGO8vyKI0lFGlwej
       val mapOfResultBody = result.body.split("&").map(_ split "=") collect { case Array(k, v) => (k, v) } toMap
 
-      oauth_token_secret = mapOfResultBody("oauth_token_secret").toString()
+      request_token_secret = mapOfResultBody("oauth_token_secret").toString()
 
       println("Quitting getRequestToken")
       mapOfResultBody("oauth_token").toString()
@@ -102,7 +103,7 @@ object Application extends Controller {
        * SIGNATURE CALCULATION AND GENERATION FOR REQUEST TOKEN CALL
        * Signing key is "<consumerSecret>&<oauth_token_secret>"
        */
-      val secret = new SecretKeySpec((consumerSecret + "&" + oauth_token_secret).getBytes, "HmacSHA1")
+      val secret = new SecretKeySpec((consumerSecret + "&" + request_token_secret).getBytes, "HmacSHA1")
       val mac = Mac.getInstance("HmacSHA1")
       mac.init(secret)
       val signatureByte: Array[Byte] = mac.doFinal((signatureBaseString).getBytes)
@@ -121,7 +122,7 @@ object Application extends Controller {
     }
 
   def oauthCallbackImpl = Action { implicit request =>
-    println("Entering oauthCallbackImpl")
+    println("Entering oauthCallbackImpl") 
     verifier = request.getQueryString("oauth_verifier").getOrElse("")
     oauth_token = request.getQueryString("oauth_token").getOrElse("")
     realmId = request.getQueryString("realmId").getOrElse("")
