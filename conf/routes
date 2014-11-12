@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /requestToken				controllers.Application.requestToken
+GET     /oauthCallbackImpl				controllers.Application.oauthCallbackImpl
 
 GET     /getCustomer					controllers.PaymentSample.getCustomer
 GET     /createCharge					controllers.PaymentSample.createCharge
