@@ -38,14 +38,20 @@ object QBOSample extends Controller {
 
     var oauth_nonce = UUID.randomUUID();
     var timestamp = System.currentTimeMillis() / 1000;
+    val customerId = 60;
+    val url = sandboxQBOEndpoint + "/company/" + realmId + "/customer/" + customerId; //For e.g. the request URI would be https://sandbox-quickbooks.api.intuit.com/v3/company/1292729421/customer/60
 
-    val signatureBaseString = "GET&https%3A%2F%2Fqb.sbfinance.intuit.com%2Fv3%2Fcompany%2F1290883070%2Fcustomer%2F2&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
+    val signatureBaseString = "GET&" + URLEncoder.encode(url) + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
 
+    //The signing key(secret) is a combination of the consumerSecret followed by an ampersand followed by the accessSecret
     val secret = new SecretKeySpec((consumerSecret + "&" + accessSecret).getBytes, "HmacSHA1")
     val mac = Mac.getInstance("HmacSHA1")
     mac.init(secret)
+    //Generate a binary value by passing the value(signatureBaseString) and the signing key (secret) through the HMAC-SHA1 algorithm
     val signatureByte: Array[Byte] = mac.doFinal((signatureBaseString).getBytes)
+    //Convert the binary value to ASCII text through Base64
     val signature = new sun.misc.BASE64Encoder().encode(signatureByte)
+    //Construct the Auth headers to be used for the HTTP request
     val headers = ("Authorization" -> ("""OAuth oauth_consumer_key="""" + consumerKey + """", 
               oauth_nonce="""" + oauth_nonce + """", 
               oauth_signature="""" + URLEncoder.encode(signature) + """", 
@@ -58,7 +64,7 @@ object QBOSample extends Controller {
     println("------> SignatureBaseSTring : " + signatureBaseString)
     println("------> Headers : " + headers)
 
-    val requestHolder = WS.url("https://qb.sbfinance.intuit.com/v3/company/" + Application.realmId + "/customer/2").withHeaders(headers);
+    val requestHolder = WS.url(url).withHeaders(headers);
     println("-------> Request : " + requestHolder.toString)
     val futureResult: Future[play.api.libs.ws.Response] = requestHolder.get
 
