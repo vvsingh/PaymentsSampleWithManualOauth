@@ -8,6 +8,8 @@ GET     /oauthCallbackImpl				controllers.Application.oauthCallbackImpl
 
 GET     /getCustomer					controllers.PaymentSample.getCustomer
 GET     /createCharge					controllers.PaymentSample.createCharge
+GET     /getCharge					controllers.PaymentSample.getCharge
+GET		/refundCharge				controllers.PaymentSample.refundCharge
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
