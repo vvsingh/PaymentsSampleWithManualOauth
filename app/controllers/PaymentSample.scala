@@ -27,11 +27,11 @@ object PaymentSample extends Controller {
 
   val sandboxQBOEndpoint = "http://sandbox-quickbooks.api.intuit.com";
   val prodQBOEndpoint = "http://quickbooks.api.intuit.com";
-  
-   val sandboxPaymentsEndpoint = "https://sandbox.api.intuit.com/quickbooks/v4/payments";
+
+  val sandboxPaymentsEndpoint = "https://sandbox.api.intuit.com/quickbooks/v4/payments";
   //val prodPaymentsEndpoint = "https://api.intuit.com"; // Need to check this value
-  
-   val sandboxPaymentsStageEndpoint = "";
+
+  val sandboxPaymentsStageEndpoint = "";
   val prodPaymentsStageEndpoint = "https://e2e.api.intuit.com/quickbooks/v4/payments";
 
   def getCustomer = Action {
@@ -68,14 +68,13 @@ object PaymentSample extends Controller {
 
     Ok(views.html.index("Your new application is ready."))
   }
-  
-  
-   def getCharge = Action {
+
+  def getCharge = Action {
 
     var oauth_nonce = UUID.randomUUID();
     var timestamp = System.currentTimeMillis() / 1000;
 
-    val signatureBaseString = "GET&"+ URLEncoder.encode(sandboxPaymentsEndpoint + "/charges/EMU286840680") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
+    val signatureBaseString = "GET&" + URLEncoder.encode(sandboxPaymentsEndpoint + "/charges/EMU286840680") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
 
     val secret = new SecretKeySpec((consumerSecret + "&" + accessSecret).getBytes, "HmacSHA1")
     val mac = Mac.getInstance("HmacSHA1")
@@ -105,15 +104,14 @@ object PaymentSample extends Controller {
 
     Ok(views.html.index("Your new application is ready."))
   }
-  
-  
+
   def createCharge = Action {
 
     var oauth_nonce = UUID.randomUUID();
-    var oauth_request_id= UUID.randomUUID();
+    var oauth_request_id = UUID.randomUUID();
     var timestamp = System.currentTimeMillis() / 1000;
 
-     val postPayload = """{
+    val postPayload = """{
     "amount": "10.55",
     "card": {
         "expYear": "2020",
@@ -131,9 +129,9 @@ object PaymentSample extends Controller {
     },
     "currency": "USD"
 }"""
-       
-        val signatureBaseString = "POST&"+ URLEncoder.encode(sandboxPaymentsEndpoint + "/charges") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
-  
+
+    val signatureBaseString = "POST&" + URLEncoder.encode(sandboxPaymentsEndpoint + "/charges") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
+
     val secret = new SecretKeySpec((consumerSecret + "&" + accessSecret).getBytes, "HmacSHA1")
     val mac = Mac.getInstance("HmacSHA1")
     mac.init(secret)
@@ -145,8 +143,7 @@ object PaymentSample extends Controller {
               oauth_signature_method="HMAC-SHA1", 
               oauth_timestamp="""" + timestamp + """", 
               oauth_token="""" + accessToken + """", 
-              oauth_version="1.0" """)
-              )
+              oauth_version="1.0" """))
 
     println("------> Tokens : " + accessToken + "," + accessSecret)
     println("------> SignatureBaseSTring : " + signatureBaseString)
@@ -158,18 +155,15 @@ object PaymentSample extends Controller {
 
     implicit val timeout = Timeout(15 seconds)
     val result = Await.result(futureResult, timeout.duration).asInstanceOf[play.api.libs.ws.Response];
-       println("-------> HTTP status " + result.status)
+    println("-------> HTTP status " + result.status)
     println("-------> Body " + result.body)
 
     Ok(views.html.index("Your new application is ready."))
   }
-  
-  
-  
-  
+
   def refundCharge = Action {
     //One thing to remember about refundCharge is that you can only call this API once for a charge. If you try to refund an already refunded charge you will get the following message :
- /*
+    /*
      * {
     "errors": [
         {
@@ -183,22 +177,22 @@ object PaymentSample extends Controller {
 }
      */
     val chargeIdToRefund = "EMU469093549"
-      val chargeAmountToRefund = "10.55"
+    val chargeAmountToRefund = "10.55"
 
     var oauth_nonce = UUID.randomUUID();
-    var oauth_request_id= UUID.randomUUID();
+    var oauth_request_id = UUID.randomUUID();
     var timestamp = System.currentTimeMillis() / 1000;
 
-     val postPayload = """{
+    val postPayload = """{
     "amount": """" + chargeAmountToRefund + """",
     "description": "first refund",
     "id": """" + chargeIdToRefund + """",
     "context": {}
 }"""
     println("Refund Charge POST JSON Payload : " + postPayload)
-       
-        val signatureBaseString = "POST&"+ URLEncoder.encode(sandboxPaymentsEndpoint + "/charges/" + chargeIdToRefund + "/refunds") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
-  
+
+    val signatureBaseString = "POST&" + URLEncoder.encode(sandboxPaymentsEndpoint + "/charges/" + chargeIdToRefund + "/refunds") + "&oauth_consumer_key%3D" + consumerKey + "%26oauth_nonce%3D" + oauth_nonce + "%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D" + timestamp + "%26oauth_token%3D" + accessToken + "%26oauth_version%3D1.0";
+
     val secret = new SecretKeySpec((consumerSecret + "&" + accessSecret).getBytes, "HmacSHA1")
     val mac = Mac.getInstance("HmacSHA1")
     mac.init(secret)
@@ -210,8 +204,7 @@ object PaymentSample extends Controller {
               oauth_signature_method="HMAC-SHA1", 
               oauth_timestamp="""" + timestamp + """", 
               oauth_token="""" + accessToken + """", 
-              oauth_version="1.0" """)
-              )
+              oauth_version="1.0" """))
 
     println("------> Tokens : " + accessToken + "," + accessSecret)
     println("------> SignatureBaseSTring : " + signatureBaseString)
@@ -223,7 +216,7 @@ object PaymentSample extends Controller {
 
     implicit val timeout = Timeout(15 seconds)
     val result = Await.result(futureResult, timeout.duration).asInstanceOf[play.api.libs.ws.Response];
-       println("-------> HTTP status " + result.status)
+    println("-------> HTTP status " + result.status)
     println("-------> Body " + result.body)
 
     Ok(views.html.index("Your new application is ready."))
