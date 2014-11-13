@@ -6,7 +6,8 @@
 GET     /                           controllers.Application.index
 GET     /oauthCallbackImpl				controllers.Application.oauthCallbackImpl
 
-GET     /getCustomer					controllers.PaymentSample.getCustomer
+GET     /getCustomer					controllers.QBOSample.getCustomer
+GET     /createCustomer					controllers.QBOSample.createCustomer
 GET     /createCharge					controllers.PaymentSample.createCharge
 GET     /getCharge					controllers.PaymentSample.getCharge
 GET		/refundCharge				controllers.PaymentSample.refundCharge
